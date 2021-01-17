@@ -1,5 +1,7 @@
 package mls
 
+import "math/bits"
+
 // The below functions provide the index calculus for the tree structures used in MLS.
 // They are premised on a "flat" representation of a balanced binary tree.  Leaf nodes
 // are even-numbered nodes, with the n-th leaf at 2*n.  Intermediate nodes are held in
@@ -39,28 +41,12 @@ func toLeafIndex(node NodeIndex) LeafIndex {
 
 // Position of the most significant 1 bit
 func log2(x nodeCount) uint {
-	if x == 0 {
-		return 0
-	}
-
-	k := uint(0)
-	for (x >> k) > 0 {
-		k += 1
-	}
-	return k - 1
+	return uint(bits.Len32(uint32(x)|1) - 1)
 }
 
 // Position of the least significant 0 bit
 func level(x NodeIndex) uint {
-	if x&0x01 == 0 {
-		return 0
-	}
-
-	k := uint(0)
-	for (x>>k)&0x01 == 1 {
-		k += 1
-	}
-	return k
+	return uint(bits.TrailingZeros32(^uint32(x)))
 }
 
 // Number of nodes for a tree of size N
